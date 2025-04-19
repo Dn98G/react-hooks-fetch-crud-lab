@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-function QuestionForm() {
+function QuestionForm({ onAddQuestion }) {
   const [formData, setFormData] = useState({
     prompt: "",
     answer1: "",
@@ -14,38 +14,43 @@ function QuestionForm() {
     const { name, value } = event.target;
     setFormData({
       ...formData,
-      [name]: value,
+      [name]: name === "correctIndex" ? parseInt(value, 10) : value, // Parse correctIndex as an integer
     });
   }
 
   function handleSubmit(event) {
-  event.preventDefault();
+    event.preventDefault();
 
-  const newQuestion = {
-    prompt: formData.prompt,
-    answers: [
-      formData.answer1,
-      formData.answer2,
-      formData.answer3,
-      formData.answer4,
-    ],
-    correctIndex: parseInt(formData.correctIndex),
-  };
+    const newQuestion = {
+      prompt: formData.prompt,
+      answers: [
+        formData.answer1,
+        formData.answer2,
+        formData.answer3,
+        formData.answer4,
+      ],
+      correctIndex: formData.correctIndex,
+    };
 
-  fetch("http://localhost:4000/questions", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(newQuestion),
-  })
-    .then((res) => res.json())
-    .then((data) => {
-      console.log("Added question:", data);
-      // Ideally: update state so it's shown in the QuestionList
-      // We'll lift state up in App.js next if not already
-    });
-}
+    fetch("http://localhost:4000/questions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(newQuestion),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        console.log("Server responded with:", data);
+        if (onAddQuestion) onAddQuestion(data);
+
+        // Update the formData state with the server response
+        setFormData({
+          ...formData,
+          correctIndex: data.correctIndex,
+        });
+      });
+  }
 
   return (
     <section>
@@ -102,11 +107,12 @@ function QuestionForm() {
             name="correctIndex"
             value={formData.correctIndex}
             onChange={handleChange}
+            data-testid="correct-answer-dropdown"
           >
-            <option value="0">{formData.answer1}</option>
-            <option value="1">{formData.answer2}</option>
-            <option value="2">{formData.answer3}</option>
-            <option value="3">{formData.answer4}</option>
+            <option value="0">{formData.answer1 || "Answer 1"}</option>
+            <option value="1">{formData.answer2 || "Answer 2"}</option>
+            <option value="2">{formData.answer3 || "Answer 3"}</option>
+            <option value="3">{formData.answer4 || "Answer 4"}</option>
           </select>
         </label>
         <button type="submit">Add Question</button>

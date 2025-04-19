@@ -1,7 +1,6 @@
-// src/components/QuestionForm.js
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 
-function QuestionForm({ onAddQuestion }) {
+function QuestionForm() {
   const [formData, setFormData] = useState({
     prompt: "",
     answer1: "",
@@ -11,50 +10,42 @@ function QuestionForm({ onAddQuestion }) {
     correctIndex: 0,
   });
 
-  useEffect(() => {
-    return () => {
-      // Cleanup to avoid memory leaks
-      setFormData({});
-    };
-  }, []);
-
-  function handleChange(e) {
-    const { name, value } = e.target;
-    setFormData((data) => ({ ...data, [name]: value }));
+  function handleChange(event) {
+    const { name, value } = event.target;
+    setFormData({
+      ...formData,
+      [name]: value,
+    });
   }
 
-  function handleSubmit(e) {
-    e.preventDefault();
+  function handleSubmit(event) {
+  event.preventDefault();
 
-    const questionData = {
-      prompt: formData.prompt,
-      answers: [
-        formData.answer1,
-        formData.answer2,
-        formData.answer3,
-        formData.answer4,
-      ],
-      correctIndex: parseInt(formData.correctIndex),
-    };
+  const newQuestion = {
+    prompt: formData.prompt,
+    answers: [
+      formData.answer1,
+      formData.answer2,
+      formData.answer3,
+      formData.answer4,
+    ],
+    correctIndex: parseInt(formData.correctIndex),
+  };
 
-    fetch("http://localhost:4000/questions", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(questionData),
-    })
-      .then((r) => r.json())
-      .then((data) => {
-        onAddQuestion(data);
-        setFormData({
-          prompt: "",
-          answer1: "",
-          answer2: "",
-          answer3: "",
-          answer4: "",
-          correctIndex: 0,
-        });
-      });
-  }
+  fetch("http://localhost:4000/questions", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(newQuestion),
+  })
+    .then((res) => res.json())
+    .then((data) => {
+      console.log("Added question:", data);
+      // Ideally: update state so it's shown in the QuestionList
+      // We'll lift state up in App.js next if not already
+    });
+}
 
   return (
     <section>
@@ -63,6 +54,7 @@ function QuestionForm({ onAddQuestion }) {
         <label>
           Prompt:
           <input
+            type="text"
             name="prompt"
             value={formData.prompt}
             onChange={handleChange}
@@ -71,6 +63,7 @@ function QuestionForm({ onAddQuestion }) {
         <label>
           Answer 1:
           <input
+            type="text"
             name="answer1"
             value={formData.answer1}
             onChange={handleChange}
@@ -79,6 +72,7 @@ function QuestionForm({ onAddQuestion }) {
         <label>
           Answer 2:
           <input
+            type="text"
             name="answer2"
             value={formData.answer2}
             onChange={handleChange}
@@ -87,6 +81,7 @@ function QuestionForm({ onAddQuestion }) {
         <label>
           Answer 3:
           <input
+            type="text"
             name="answer3"
             value={formData.answer3}
             onChange={handleChange}
@@ -95,6 +90,7 @@ function QuestionForm({ onAddQuestion }) {
         <label>
           Answer 4:
           <input
+            type="text"
             name="answer4"
             value={formData.answer4}
             onChange={handleChange}
@@ -107,13 +103,13 @@ function QuestionForm({ onAddQuestion }) {
             value={formData.correctIndex}
             onChange={handleChange}
           >
-            <option value="0">Answer 1</option>
-            <option value="1">Answer 2</option>
-            <option value="2">Answer 3</option>
-            <option value="3">Answer 4</option>
+            <option value="0">{formData.answer1}</option>
+            <option value="1">{formData.answer2}</option>
+            <option value="2">{formData.answer3}</option>
+            <option value="3">{formData.answer4}</option>
           </select>
         </label>
-        <button type="submit">Submit</button>
+        <button type="submit">Add Question</button>
       </form>
     </section>
   );

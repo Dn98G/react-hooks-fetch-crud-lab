@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import QuestionItem from "./QuestionItem";
 
 function QuestionList() {
-  const [questions, setQuestions] = useState([]);
+  const [questions, setQuestions] = useState([]);// initializing state to empty array
 
   useEffect(() => {
     fetch("http://localhost:4000/questions")

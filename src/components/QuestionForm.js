@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 
-function QuestionForm(props) {
-  const [formData, setFormData] = useState({
+function QuestionForm() {
+  const [formData, setFormData] = useState({// initializing state
     prompt: "",
     answer1: "",
     answer2: "",
